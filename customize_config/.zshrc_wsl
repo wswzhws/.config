@@ -103,7 +103,10 @@ fi
 export PATH="$PATH:/opt/nvim-linux64/bin/"
 export PATH="$PATH:/opt/go/bin/"
 export PATH="$PATH:/usr/local/cuda/bin"
-export PATH="$PATH:/home/zhehan/Applications/vcpkg"
+
+export VCPKG_ROOT="/home/zhehan/Applications/vcpkg"
+export PATH="$PATH:$VCPKG_ROOT"
+
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
