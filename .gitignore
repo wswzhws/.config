@@ -2,7 +2,7 @@
 !.gitignore
 !alacritty/
 !alacritty/**
-!cmake-script/
-!cmake-script/**
 !customize_config/
 !customize_config/**
+!clangd/
+!clangd/**
