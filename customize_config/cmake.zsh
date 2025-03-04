@@ -71,6 +71,8 @@ target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)"
         vcpkg new --application
         vcpkg add port fmt
     fi
+
+    ln -s ~/.config/.clang-format .clang-format
 }
 
 cmake_new() {
