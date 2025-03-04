@@ -90,7 +90,7 @@ plugins=(git
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-source ~/.config/cmake-script/cmake.zsh
+source ~/.config/customize_config/cmake.zsh
 
 # export MANPATH="/usr/local/man:$MANPATH"
 export IDF_PATH="/Users/amoswang/esp/esp-idf"

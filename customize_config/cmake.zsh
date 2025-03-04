@@ -29,6 +29,8 @@ cmake_init() {
 
     local cmake_content="cmake_minimum_required(VERSION 3.20)
 
+set(CMAKE_TOOLCHAIN_FILE \"\$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake\")
+
 get_filename_component(ProjectId \${CMAKE_CURRENT_SOURCE_DIR} NAME)
 project(\${ProjectId})
 message(\"Project \${ProjectId} start to build\")

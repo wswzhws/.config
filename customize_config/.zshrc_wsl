@@ -90,7 +90,7 @@ plugins=(git
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-source ~/.config/cmake-script/cmake.zsh
+source ~/.config/customize_config/cmake.zsh
 if [ -f ~/.config/customize_config/wsl_proxy_setup.zsh ]; then
     source ~/.config/customize_config/wsl_proxy_setup.zsh
 fi
