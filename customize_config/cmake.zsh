@@ -73,6 +73,7 @@ target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)"
     fi
 
     cp ~/.config/.clang-format .clang-format
+    cp ~/.config/.clangd .clangd
 }
 
 cmake_new() {
@@ -98,7 +99,12 @@ cmake_build() {
         return 1
     fi
 
+    if [[ -f build/CMakeCache.txt ]]; then
+        rm build/CMakeCache.txt
+    fi
+
     mkdir -p build && cd build && cmake .. && make -j$(nproc)
+    cd ../
     return $?
 }
 

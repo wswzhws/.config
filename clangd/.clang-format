@@ -81,7 +81,7 @@ SpacesInCStyleCastParentheses: false                # c 式类型强转之后是
 SpacesInContainerLiterals: true                     # @[], @{} 等容器前后是否插入空格 [ 1, 2, 3 ];  <- [1, 2, 3];
 SpacesInParentheses: false                          # ( 后 ) 前是否插入空格, t f( Deleted & ) & = delete;  ->  t f(Deleted &) & = delete;
 SpacesInSquareBrackets: false                       # [ 后 ] 前是否插入空格
-Standard: Cpp17                                     # 语言标准 Cpp03 Cpp11 Auto
+Standard: Cpp11                                     # 语言标准 Cpp03 Cpp11 Auto
 TabWidth: 4                                         # Tab 宽度
 UseTab: Never                                       # 保留 Tab 或者用空格替换
 PointerBindsToType: false

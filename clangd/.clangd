@@ -1,0 +1,6 @@
+CompileFlags:
+  Add: ["-std=c++17"]
+InlayHints:
+  Enabled: true
+  DeducedTypes: true
+  ParameterNames: true
