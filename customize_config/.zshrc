@@ -1,3 +1,5 @@
+OS=$(if uname -r | grep -qi Microsoft; then echo "WSL"; else uname -s; fi)
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -119,9 +121,6 @@ source ~/.config/customize_config/cmake.zsh
 alias vi="nvim"
 alias lg="lazygit"
 alias cdc="cd ~/Documents/CodeBox"
-alias cdd="cd /mnt/c/Users/zheha/Downloads"
-
-alias espidf=". ~/esp/esp-idf/export.sh"
 
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
@@ -131,6 +130,26 @@ function y() {
 	fi
 	rm -f -- "$tmp"
 }
+
+if [[ $OS == "WSL" ]]; then
+    if [ -f ~/.config/customize_config/wsl_proxy_setup.zsh ]; then
+        source ~/.config/customize_config/wsl_proxy_setup.zsh
+    fi
+
+    if [ -f ~/.config/customize_config/ssh_alias.zsh ]; then
+        source ~/.config/customize_config/ssh_alias.zsh
+    fi
+
+    if [ -f ~/.config/customize_config/usbipd.zsh ]; then
+        alias usbipd="~/.config/customize_config/usbipd.zsh"
+    fi
+
+    alias cdd="cd /mnt/c/Users/zheha/Downloads"
+    alias pwsh="pwsh.exe"
+elif [[ $OS == "Darwin" ]]; then
+    alias cdd="cd ~/Downloads"
+    alias espidf=". ~/esp/esp-idf/export.sh"
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
