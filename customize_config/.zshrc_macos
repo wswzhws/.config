@@ -92,15 +92,6 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 source ~/.config/customize_config/cmake.zsh
 
-# export MANPATH="/usr/local/man:$MANPATH"
-export IDF_PATH="/Users/amoswang/esp/esp-idf"
-export LUA_ROOT="/opt/homebrew/Cellar/lua/5.4.7"
-export VCPKG_ROOT="/Users/amoswang/development/vcpkg"
-export PATH="$PATH:$VCPKG_ROOT"
-
-export HOMEBREW_NO_AUTO_UPDATE=true
-export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles/bottles
-
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
