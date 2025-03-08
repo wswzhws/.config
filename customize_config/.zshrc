@@ -132,6 +132,7 @@ function y() {
 }
 
 if [[ $OS == "WSL" ]]; then
+
     if [ -f ~/.config/customize_config/wsl_proxy_setup.zsh ]; then
         source ~/.config/customize_config/wsl_proxy_setup.zsh
     fi
@@ -146,9 +147,12 @@ if [[ $OS == "WSL" ]]; then
 
     alias cdd="cd /mnt/c/Users/zheha/Downloads"
     alias pwsh="pwsh.exe"
+
 elif [[ $OS == "Darwin" ]]; then
+
     alias cdd="cd ~/Downloads"
     alias espidf=". ~/esp/esp-idf/export.sh"
+
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
