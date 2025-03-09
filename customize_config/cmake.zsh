@@ -1,15 +1,19 @@
 cmake_init() {
-    if [[ $1 == "--help" ]]; then
-        echo "usage: cmake_init [--lib|--bin]"
-        return 0
-    fi
-    
-    local target_type="bin"  
+    # Argument handling
+    local target_type="bin"
     local source_file="main.cc"
     local target_cmd="add_executable(\${ProjectId} \"$source_file\")"
+    local overwrite_choice=""
 
-    while [[ $# -gt 0 ]]; do
-        case $1 in
+    # Help handling
+    if [[ "$1" == "--help" ]]; then
+        echo "Usage: cmake_init [--lib|--bin]"
+        return 0
+    fi
+
+    # Argument parsing
+    while (( $# > 0 )); do
+        case "$1" in
             --lib)
                 target_type="lib"
                 source_file="lib.cc"
@@ -19,21 +23,32 @@ cmake_init() {
                 target_type="bin"
                 ;;
             *)
-                echo "Unknown argument: $1"
-                echo "usage: cmake_init [--lib|--bin]"
+                echo >&2 "Error: Unknown argument $1"
+                echo >&2 "Usage: cmake_init [--lib|--bin]"
                 return 1
                 ;;
         esac
         shift
     done
 
-    local cmake_content="cmake_minimum_required(VERSION 3.20)
+    # Check existing CMakeLists.txt
+    if [[ -f "CMakeLists.txt" ]]; then
+        read -rp "Existing CMakeLists.txt detected, overwrite? (y/N) " overwrite_choice
+        if [[ "${overwrite_choice,,}" != "y" ]]; then
+            echo "Operation cancelled"
+            return 0
+        fi
+    fi
 
-set(CMAKE_TOOLCHAIN_FILE \"\$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake\")
+    # Generate CMake content
+    local cmake_content=$(cat <<EOF
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_TOOLCHAIN_FILE "\$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 get_filename_component(ProjectId \${CMAKE_CURRENT_SOURCE_DIR} NAME)
 project(\${ProjectId})
-message(\"Project \${ProjectId} start to build\")
+message("Project \${ProjectId} building started")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -42,114 +57,233 @@ find_package(fmt CONFIG REQUIRED)
 
 ${target_cmd}
 
-set_target_properties(\${ProjectId} PROPERTIES PREFIX \"\")
+set_target_properties(\${ProjectId} PROPERTIES PREFIX "")
 
 target_include_directories(\${ProjectId} PUBLIC include)
+target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)
+EOF
+    )
 
-target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)"
-
-    if [[ -f CMakeLists.txt ]]; then
-        read -rp "Found existing CMakeLists.txt, overwrite? (y/N) " answer
-        [[ "$answer" != "y" && "$answer" != "Y" ]] && return 0
-    fi
-
-    echo "$cmake_content" > CMakeLists.txt
+    # Write CMakeLists.txt
+    echo "$cmake_content" > "CMakeLists.txt" || {
+        echo >&2 "Error: Failed to write CMakeLists.txt"
+        return 1
+    }
     echo "Initialized CMake project: ${target_type}"
 
-    if [[ ! -f $source_file ]]; then
-        if [[ $target_type == "lib" ]]; then
-            echo -e "#include <fmt/core.h>\n\nextern \"C\" void hello() {\n    fmt::println(\"Hello from library!\");\n}" > $source_file
-        else
-            echo -e "#include <fmt/core.h>\n\nint main() {\n    fmt::println(\"Hello World!\");\n}" > $source_file
+    # Create sample files
+    if [[ ! -f "$source_file" ]]; then
+        mkdir -p src
+        case "$target_type" in
+            lib)
+                echo -e "#include <fmt/core.h>\n\nextern \"C\" void hello() {\n    fmt::println(\"Hello from library!\");\n}" > "src/$source_file"
+                ;;
+            bin)
+                echo -e "#include <fmt/core.h>\n\nint main() {\n    fmt::println(\"Hello World!\");\n}" > "src/$source_file"
+                ;;
+        esac
+        echo "Created sample file: src/$source_file"
+    fi
+
+    # Create directory structure
+    mkdir -p include src || {
+        echo >&2 "Error: Failed to create directory structure"
+        return 1
+    }
+
+    # Initialize vcpkg
+    if [[ ! -f "vcpkg.json" ]]; then
+        if ! command -v vcpkg &> /dev/null; then
+            echo >&2 "Warning: vcpkg not found, skipping initialization"
+            return 0
         fi
-        echo "Created source file: $source_file"
+        vcpkg new --application && vcpkg add port fmt || {
+            echo >&2 "Error: vcpkg initialization failed"
+            return 1
+        }
     fi
 
-    mkdir -p include src
+    # Copy configuration files
+    copy_config_file() {
+        local src="$1"
+        local dest="$2"
+        if [[ -f "$src" ]]; then
+            cp "$src" "$dest" && echo "Copied config file: $dest"
+        else
+            echo >&2 "Warning: Config file $src not found"
+        fi
+    }
 
-    if [[ ! -f vcpkg.json ]]; then
-        vcpkg new --application
-        vcpkg add port fmt
-    fi
-
-    cp ~/.config/.clang-format .clang-format
-    cp ~/.config/.clangd .clangd
-    cp ~/.config/.editorconfig .editorconfig
+    copy_config_file ~/.config/.clang-format .clang-format
+    copy_config_file ~/.config/.clangd .clangd
+    copy_config_file ~/.config/.editorconfig .editorconfig
 }
 
 cmake_new() {
-    if [[ $# -eq 0 ]] || [[ $1 == "--help" ]]; then
-        echo "usage: cmake_new project_name [--lib|--bin]"
+    # Parameter validation
+    if [[ $# -eq 0 ]]; then
+        echo >&2 "Error: Project name required"
+        echo >&2 "Usage: cmake_new project_name [--lib|--bin]"
         return 1
     fi
 
-    local project_name=$1
+    local project_name="$1"
     shift
 
-    if [[ -d $project_name ]]; then
-        echo "Error: Directory $project_name already exists"
+    # Prevent directory overwrite
+    if [[ -e "$project_name" ]]; then
+        echo >&2 "Error: '$project_name' already exists"
         return 1
     fi
 
-    mkdir -p "$project_name" && cd "$project_name" && cmake_init "$@"
+    # Create project directory
+    mkdir -p "$project_name" || {
+        echo >&2 "Error: Failed to create directory '$project_name'"
+        return 1
+    }
+
+    # Initialize project
+    (
+        cd "$project_name" || {
+            echo >&2 "Error: Cannot enter directory '$project_name'"
+            return 1
+        }
+        cmake_init "$@"
+    )
 }
 
 cmake_build() {
-    if [[ ! -f CMakeLists.txt ]]; then
-        echo "Error: CMakeLists.txt not found in current directory"
+    # Pre-check
+    if [[ ! -f "CMakeLists.txt" ]]; then
+        echo >&2 "Error: Not a CMake project directory"
         return 1
     fi
 
-    if [[ -f build/CMakeCache.txt ]]; then
-        rm build/CMakeCache.txt
+    # Function to get latest modified timestamp
+    get_latest_timestamp() {
+        find "$@" -type f ! -path '*/\.*' 2>/dev/null \
+        | xargs stat -c %Y 2>/dev/null \
+        | sort -nr \
+        | head -1
+    }
+
+    # Get source files timestamp
+    local src_files=("src" "include")
+    [[ -f "main.cc" ]] && src_files+=("main.cc")
+    [[ -f "lib.cc" ]] && src_files+=("lib.cc")
+    
+    local src_timestamp
+    src_timestamp=$(get_latest_timestamp "${src_files[@]}")
+
+    # Get build files timestamp
+    local build_timestamp=0
+    if [[ -d "build" ]]; then
+        build_timestamp=$(get_latest_timestamp "build")
     fi
 
-    mkdir -p build && cd build && cmake .. && make -j$(nproc)
-    cd ../
-    return $?
+    # Skip build if no changes
+    if [[ -n "$src_timestamp" && -n "$build_timestamp" ]]; then
+        if (( src_timestamp <= build_timestamp )); then
+            echo "No source changes detected. Build skipped."
+            return 0
+        fi
+    fi
+
+    # Clean old cache
+    if [[ -d "build" ]]; then
+        echo "Found existing build directory, cleaning..."
+        rm -rf build/CMakeCache.txt || {
+            echo >&2 "Error: Clean failed"
+            return 1
+        }
+    fi
+
+    # Build process
+    (
+        mkdir -p build && cd build || {
+            echo >&2 "Error: Failed to create build directory"
+            return 1
+        }
+
+        if ! cmake ..; then
+            echo >&2 "Error: CMake configuration failed"
+            return 1
+        fi
+
+        local cpu_count
+        cpu_count=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
+        if ! make -j"$cpu_count"; then
+            echo >&2 "Error: Compilation failed"
+            return 1
+        fi
+    ) || return 1
+
+    echo "Build successful"
 }
 
 cmake_clean() {
-    if [[ ! -f CMakeLists.txt ]]; then
-        echo "Error: Not a CMake project directory"
+    # Safety check
+    if [[ ! -f "CMakeLists.txt" ]]; then
+        echo >&2 "Error: Not a CMake project directory"
         return 1
     fi
 
-    if [[ -d build ]]; then
-        echo "Removing build directory..."
-        rm -rf build
+    if [[ -d "build" ]]; then
+        echo "Cleaning build directory..."
+        rm -rf build || {
+            echo >&2 "Error: Clean failed"
+            return 1
+        }
     else
-        echo "Build directory does not exist"
+        echo "No build directory to clean"
     fi
 }
 
 cmake_run() {
-    if [[ $1 == "--help" ]]; then
-        echo "usage: cmake_run [executable_name]"
+    # Argument handling
+    local exe_name=""
+    if [[ "$1" == "--help" ]]; then
+        echo "Usage: cmake_run [executable_name]"
         return 0
     fi
 
-    local project_id=$(basename "$PWD")
-    if grep -qE "^[^#]*add_executable\(" CMakeLists.txt; then
-        cmake_build || return $?
-    elif grep -qE "^[^#]*add_library\(" CMakeLists.txt; then
-        echo "This project is a library, not an executable"
-        return 0
-    else
-        echo "Error: No add_executable or add_library in CMakeLists.txt"
-        return 1
+    # Project type detection
+    if ! grep -qE '^[[:space:]]*add_executable\(' CMakeLists.txt; then
+        if grep -qE '^[[:space:]]*add_library\(' CMakeLists.txt; then
+            echo "Current project is a library, cannot execute"
+            return 0
+        else
+            echo >&2 "Error: No executable or library target found"
+            return 1
+        fi
     fi
 
-    local exe_name=${1:-$project_id}
+    # Build project
+    cmake_build || return $?
+
+    # Get executable name
+    local project_id
+    project_id=$(grep -m1 '^project(' CMakeLists.txt | cut -d'(' -f2 | cut -d')' -f1 | tr -d '[:space:]')
+    exe_name="${1:-$project_id}"
+
+    # Find executable
     local exe_path
-    exe_path=$(find build -type f -executable -name "$exe_name" 2>/dev/null | head -n1)
-    
+    exe_path=$(
+        find build -type f -perm /u+x,g+x,o+x \
+        -name "$exe_name" \
+        -not -name "*.so" -not -name "*.dylib" -not -name "*.dll" \
+        -print -quit
+    )
+
     if [[ -n "$exe_path" ]]; then
-        echo "Running: ${exe_path}"
+        echo "Executing: $exe_path"
         "$exe_path"
     else
-        echo "Error: Executable '${exe_name}' not found"
+        echo >&2 "Error: Executable '$exe_name' not found"
+        echo >&2 "Available targets:"
+        find build -type f -perm /u+x,g+x,o+x \
+            -not -name "*.so" -not -name "*.dylib" -not -name "*.dll" \
+            -print
         return 1
     fi
 }
-
