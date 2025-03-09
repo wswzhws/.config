@@ -122,6 +122,11 @@ alias vi="nvim"
 alias lg="lazygit"
 alias cdc="cd ~/Documents/CodeBox"
 
+function nvim() {
+    command nvim "$@"
+    echo -e '\e[ q'
+}
+
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"

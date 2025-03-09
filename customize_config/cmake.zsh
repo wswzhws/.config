@@ -58,9 +58,9 @@ target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)"
 
     if [[ ! -f $source_file ]]; then
         if [[ $target_type == "lib" ]]; then
-            echo -e "// lib.cc\n#include <fmt/core.h>\n\nextern \"C\" void hello() {\n    fmt::println(\"Hello from library!\");\n}" > $source_file
+            echo -e "#include <fmt/core.h>\n\nextern \"C\" void hello() {\n    fmt::println(\"Hello from library!\");\n}" > $source_file
         else
-            echo -e "// main.cc\n#include <fmt/core.h>\n\nint main() {\n    fmt::println(\"Hello World!\");\n}" > $source_file
+            echo -e "#include <fmt/core.h>\n\nint main() {\n    fmt::println(\"Hello World!\");\n}" > $source_file
         fi
         echo "Created source file: $source_file"
     fi
@@ -74,6 +74,7 @@ target_link_libraries(\${ProjectId} PUBLIC fmt::fmt)"
 
     cp ~/.config/.clang-format .clang-format
     cp ~/.config/.clangd .clangd
+    cp ~/.config/.editorconfig .editorconfig
 }
 
 cmake_new() {
