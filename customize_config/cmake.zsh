@@ -114,8 +114,6 @@ EOF
         fi
     }
 
-    copy_config_file ~/.config/.clang-format .clang-format
-    copy_config_file ~/.config/.clangd .clangd
     copy_config_file ~/.config/.editorconfig .editorconfig
 }
 
