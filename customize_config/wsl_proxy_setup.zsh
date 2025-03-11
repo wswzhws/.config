@@ -9,5 +9,6 @@ else
     export http_proxy="http://${WIN_IP}:7890"
     export https_proxy="http://${WIN_IP}:7890"
     export ftp_proxy="http://${WIN_IP}:7890"
+    export no_proxy="localhost,127.0.0.1"
 fi
 
