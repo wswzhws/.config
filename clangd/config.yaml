@@ -1,5 +1,13 @@
 CompileFlags:
-  Add: ["-std=c++17"]
+  Add: [-std=c11, ...]
+  If:
+    FileMatch: '.*\.c$'
+
+CompileFlags:
+  Add: [-std=c++17, ...]
+  If:
+    FileMatch: '.*\.(cpp|cc|cxx)$'
+
 InlayHints:
   Enabled: true
   DeducedTypes: true
