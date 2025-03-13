@@ -1,12 +1,14 @@
-CompileFlags:
-  Add: [-std=c11, ...]
-  If:
-    FileMatch: '.*\.c$'
-
-CompileFlags:
-  Add: [-std=c++17, ...]
-  If:
-    FileMatch: '.*\.(cpp|cc|cxx)$'
+If:
+  FileMatch: '.*\.c$'
+  CompileFlags:
+    Add: [-std=c11, ...]
+If:
+  FileMatch: '.*\.(cpp|cc|cxx)$'
+  CompileFlags:
+    Add: [-std=c++20, ...]
+If:
+  FileMatch: '.*\.h$'
+  HeaderFilter: .*
 
 InlayHints:
   Enabled: true
