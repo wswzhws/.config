@@ -1,7 +1,7 @@
 If:
   FileMatch: '.*\.c$'
   CompileFlags:
-    Add: [-std=c11, ...]
+    Add: [-std=c23, ...]
 If:
   FileMatch: '.*\.(cpp|cc|cxx)$'
   CompileFlags:

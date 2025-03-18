@@ -19,6 +19,8 @@ export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
+ZVM_VI_EDITOR=nvim
+ZVM_VI_ESCAPE_BINDKEY=jk
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -84,6 +86,7 @@ zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 plugins=(git
     zsh-autosuggestions
     zsh-syntax-highlighting
+    zsh-vi-mode
     fzf-tab
     extract
     web-search
@@ -107,6 +110,7 @@ fi
 # else
 #   export EDITOR='mvim'
 # fi
+
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
