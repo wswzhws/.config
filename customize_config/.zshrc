@@ -155,12 +155,9 @@ if [[ $OS == "WSL" ]]; then
         source ~/.config/customize_config/ssh_alias.zsh
     fi
 
-    if [ -f ~/.config/customize_config/usbipd.zsh ]; then
-        alias usbipd="~/.config/customize_config/usbipd.zsh"
+    if [ -f ~/.config/customize_config/wsl_alias.zsh ]; then
+        source ~/.config/customize_config/wsl_alias.zsh
     fi
-
-    alias cdd="cd /mnt/c/Users/zheha/Downloads"
-    alias pwsh="pwsh.exe"
 
 elif [[ $OS == "Darwin" ]]; then
 
