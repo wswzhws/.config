@@ -40,6 +40,7 @@ function open() {
     esac
 }
 
+alias rgdb="/home/zhehan/Applications/gdb-15.2/build-riscv64/bin/riscv64-unknown-elf-gdb"
 alias cdd="cd /mnt/c/Users/zheha/Downloads"
 alias pwsh="pwsh.exe"
 
