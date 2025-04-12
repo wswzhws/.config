@@ -162,7 +162,6 @@ if [[ $OS == "WSL" ]]; then
 elif [[ $OS == "Darwin" ]]; then
 
     alias cdd="cd ~/Downloads"
-    alias espidf=". ~/esp/esp-idf/export.sh"
 
 fi
 
