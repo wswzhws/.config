@@ -114,7 +114,7 @@ EOF
         fi
     }
 
-    copy_config_file ~/.config/.editorconfig .editorconfig
+    copy_config_file ~/.config/customize_config/.editorconfig .editorconfig
 }
 
 cmake_new() {
@@ -237,51 +237,3 @@ cmake_clean() {
     fi
 }
 
-cmake_run() {
-    # Argument handling
-    local exe_name=""
-    if [[ "$1" == "--help" ]]; then
-        echo "Usage: cmake_run [executable_name]"
-        return 0
-    fi
-
-    # Project type detection
-    if ! grep -qE '^[[:space:]]*add_executable\(' CMakeLists.txt; then
-        if grep -qE '^[[:space:]]*add_library\(' CMakeLists.txt; then
-            echo "Current project is a library, cannot execute"
-            return 0
-        else
-            echo >&2 "Error: No executable or library target found"
-            return 1
-        fi
-    fi
-
-    # Build project
-    cmake_build || return $?
-
-    # Get executable name
-    local project_id
-    project_id=$(grep -m1 '^project(' CMakeLists.txt | cut -d'(' -f2 | cut -d')' -f1 | tr -d '[:space:]')
-    exe_name="${1:-$project_id}"
-
-    # Find executable
-    local exe_path
-    exe_path=$(
-        find build -type f -perm /u+x,g+x,o+x \
-        -name "$exe_name" \
-        -not -name "*.so" -not -name "*.dylib" -not -name "*.dll" \
-        -print -quit
-    )
-
-    if [[ -n "$exe_path" ]]; then
-        echo "Executing: $exe_path"
-        "$exe_path"
-    else
-        echo >&2 "Error: Executable '$exe_name' not found"
-        echo >&2 "Available targets:"
-        find build -type f -perm /u+x,g+x,o+x \
-            -not -name "*.so" -not -name "*.dylib" -not -name "*.dll" \
-            -print
-        return 1
-    fi
-}
