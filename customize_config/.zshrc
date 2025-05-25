@@ -98,7 +98,6 @@ source $ZSH/oh-my-zsh.sh
 if [ -f ~/.config/customize_config/cmake.zsh ]; then
     source ~/.config/customize_config/cmake.zsh
     alias cb="cmake_build"
-    alias cr="cmake_run"
 fi
 
 # You may need to manually set your language environment

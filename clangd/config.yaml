@@ -1,14 +1,5 @@
-If:
-  FileMatch: '.*\.c$'
-  CompileFlags:
-    Add: [-std=c23, ...]
-If:
-  FileMatch: '.*\.(cpp|cc|cxx)$'
-  CompileFlags:
-    Add: [-std=c++20, ...]
-If:
-  FileMatch: '.*\.h$'
-  HeaderFilter: .*
+CompileFlags:
+  Add: [-xc++, -std=c++20]
 
 InlayHints:
   Enabled: true
