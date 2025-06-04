@@ -127,8 +127,9 @@ export CLANGD_CONFIG_FILE=~/.config/clangd/config.yaml
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias vi="nvim"
+alias vic="nvim ~/.config/nvim"
 alias lg="lazygit"
-alias cdc="cd ~/Documents/CodeBox"
+alias h="cd ~/Documents/CodeBox"
 
 function nvim() {
     command nvim "$@"
